@@ -8,4 +8,6 @@ public interface MailSendService {
     SimpleMailMessage sendSimpleMessage(MailEntity mailEntity);
 
     SimpleMailMessage sendTemplateMessage(MailEntity mailEntity);
+
+    String name();
 }

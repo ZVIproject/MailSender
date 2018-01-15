@@ -1,14 +1,15 @@
 package com.profiside.mail.component.controller;
 
 import com.profiside.mail.component.entity.MailEntity;
-import com.profiside.mail.factory.mail.AmazonFactory;
-import com.profiside.mail.factory.mail.GmailFactory;
+import com.profiside.mail.component.interfacee.MailSendService;
+import com.profiside.mail.component.service.GmailSendServiceImpl;
+import com.profiside.mail.component.service.MailSendServiceDispatcher;
+import com.profiside.mail.utils.Const;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
@@ -17,26 +18,32 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
 public class MailControllerTest {
 
+    @MockBean
+    private MailSendServiceDispatcher dispatcher;
+
+    @MockBean
+    @Qualifier("gmailSendServiceImpl")
+    private MailSendService mailSendService;
+
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private GmailFactory gmailFactory;
-
-    @MockBean
-    private AmazonFactory amazonFactory;
 
     @Autowired
     private MailController mailController;
 
     private MailEntity mailEntity;
+
+    private static String createMailInJson(MailEntity mailEntity) {
+        return "{ \"to\": \"" + mailEntity.getTo() + "\", " +
+            "\"subject\":\"" + mailEntity.getSubject() + "\"," +
+            "\"text\":\"" + mailEntity.getText() + "\"}";
+    }
 
     @Before
     public void initialization() {
@@ -49,7 +56,8 @@ public class MailControllerTest {
 
     @Test
     public void sendSimpleMessage() throws Exception {
-        doReturn(new SimpleMailMessage()).when(gmailFactory).doSendSimpleEmail(mailEntity);
+        doReturn(mailSendService).when(dispatcher).get(Const.GMAIL);
+        doReturn(new SimpleMailMessage()).when(mailSendService).sendSimpleMessage(mailEntity);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/v1/mail/gmail/simple")
             .accept("application/json")
@@ -59,18 +67,13 @@ public class MailControllerTest {
 
     @Test
     public void sendTemplateMessage() throws Exception {
-        doReturn(new SimpleMailMessage()).when(gmailFactory).doSendTemplateEmail(mailEntity);
+        doReturn(mailSendService).when(dispatcher).get(Const.GMAIL);
+        doReturn(new SimpleMailMessage()).when(mailSendService).sendSimpleMessage(mailEntity);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/v1/mail/gmail/template")
             .accept("application/json")
             .contentType("application/json").content(createMailInJson(mailEntity)))
             .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    private static String createMailInJson (MailEntity mailEntity) {
-        return "{ \"to\": \"" + mailEntity.getTo() + "\", " +
-            "\"subject\":\"" + mailEntity.getSubject() + "\"," +
-            "\"text\":\"" + mailEntity.getText() + "\"}";
     }
 
 }

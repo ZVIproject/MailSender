@@ -2,12 +2,11 @@ package com.profiside.mail.component.service;
 
 import com.profiside.mail.MailApplication;
 import com.profiside.mail.component.entity.MailEntity;
-import com.profiside.mail.component.interfacee.MailSendService;
+import com.profiside.mail.utils.Const;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,11 +20,9 @@ import static org.junit.Assert.assertEquals;
 public class GmailSendServiceImplTest {
 
     @Autowired
-    @Qualifier("gmailMessageService")
-    private MailSendService gmailMessageServic;
+    private MailSendServiceDispatcher dispatcher;
 
     private MailEntity mailEntity;
-
 
     @Before
     public void initialization() {
@@ -36,24 +33,24 @@ public class GmailSendServiceImplTest {
         this.mailEntity = new MailEntity(receiversEmail, emailText, emailSubject);
     }
 
-     @Test
+    @Test
     public void sendSimpleMessageFailedIfMessageDataIsNotEquals() throws Exception {
 
-        SimpleMailMessage testMailMessage = gmailMessageServic.sendSimpleMessage(mailEntity);
+        SimpleMailMessage testMailMessage = dispatcher.get(Const.GMAIL).sendSimpleMessage(mailEntity);
 
         checkResponseMail(testMailMessage, true);
     }
 
     @Test
     public void sendTemplateMessageFailedIfMessageDataIsNotEquals() throws Exception {
-        SimpleMailMessage testMailMessage = gmailMessageServic.sendTemplateMessage(mailEntity);
+        SimpleMailMessage testMailMessage = dispatcher.get(Const.GMAIL).sendTemplateMessage(mailEntity);
 
         checkResponseMail(testMailMessage, false);
 
     }
 
     private void checkResponseMail(SimpleMailMessage testMailMessage, boolean isNotTemplateMessage) {
-        if (isNotTemplateMessage){
+        if (isNotTemplateMessage) {
             assertEquals("Text of message should be equal", testMailMessage.getText(), mailEntity.getText());
         }
 

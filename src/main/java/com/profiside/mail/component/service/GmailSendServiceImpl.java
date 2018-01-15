@@ -1,41 +1,42 @@
 package com.profiside.mail.component.service;
 
-import com.profiside.mail.component.entity.MailEntity;
-import com.profiside.mail.component.interfacee.MailSendService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.profiside.mail.component.abstracts.AbstractMailSendService;
+import com.profiside.mail.configuration.EmaiProperties;
+import com.profiside.mail.utils.Const;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
-@Service("gmailMessageService")
-public class GmailSendServiceImpl implements MailSendService {
+import javax.annotation.PostConstruct;
+import java.util.Properties;
 
-    @Autowired
-    @Qualifier(value = "gmail_message")
-    private JavaMailSender mailSender;
+@Service
+public class GmailSendServiceImpl extends AbstractMailSendService {
 
-    @Autowired
-    @Qualifier(value = "gmail_template")
-    private SimpleMailMessage template;
+    @PostConstruct
+    public void postConstruct() {
+        config(emaiProperties.getGmail());
+    }
 
+    private void config(EmaiProperties.ConnectGmail connect) {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 
-    @Override
-    public SimpleMailMessage sendSimpleMessage(MailEntity mailEntity) {
+        mailSender.setHost(connect.getHost());
+        mailSender.setPort(connect.getPort());
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(mailEntity.getTo());
-        message.setSubject(mailEntity.getSubject());
-        message.setText(mailEntity.getText());
-        mailSender.send(message);
+        mailSender.setUsername(connect.getUsername());
+        mailSender.setPassword(connect.getPassword());
 
-        return message;
+        Properties props = mailSender.getJavaMailProperties();
+
+        props.put("mail.smtp.auth", connect.getProperties().getSmtpAuth());
+        props.put("mail.smtp.starttls.enable", connect.getProperties().getTlsEnable());
+
+        this.mailSender = mailSender;
     }
 
     @Override
-    public SimpleMailMessage sendTemplateMessage(MailEntity mailEntity) {
-        mailEntity.setText(String.format(template.getText(), mailEntity.getTo(), mailEntity.getSubject()));
-        return sendSimpleMessage(mailEntity);
+    public String name() {
+        return Const.GMAIL;
     }
 
 }
