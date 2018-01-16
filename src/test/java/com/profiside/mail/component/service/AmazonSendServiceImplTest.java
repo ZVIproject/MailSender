@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -36,14 +35,14 @@ public class AmazonSendServiceImplTest {
     @Test
     public void sendSimpleMessageFailedIfMessageDataIsNotEquals() throws Exception {
 
-        SimpleMailMessage testMailMessage = dispatcher.get(Const.GMAIL).sendSimpleMessage(mailEntity);
+        SimpleMailMessage testMailMessage = dispatcher.get(Const.AMAZON).sendSimpleMessage(mailEntity);
 
         checkResponseMail(testMailMessage, true);
     }
 
     @Test
     public void sendTemplateMessageFailedIfMessageDataIsNotEquals() throws Exception {
-        SimpleMailMessage testMailMessage = dispatcher.get(Const.GMAIL).sendTemplateMessage(mailEntity);
+        SimpleMailMessage testMailMessage = dispatcher.get(Const.AMAZON).sendTemplateMessage(mailEntity);
 
         checkResponseMail(testMailMessage, false);
 
