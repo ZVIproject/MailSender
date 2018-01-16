@@ -1,14 +1,21 @@
 package com.profiside.mail.component.service;
 
+import com.profiside.mail.MailApplication;
 import com.profiside.mail.component.entity.MailEntity;
 import com.profiside.mail.utils.Const;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = MailApplication.class)
 public class AmazonSendServiceImplTest {
 
     @Autowired

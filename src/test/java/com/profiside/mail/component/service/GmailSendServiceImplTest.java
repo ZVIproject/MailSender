@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = MailApplication.class)
-@PropertySource("classpath:application-gmail_mail.properties")
 public class GmailSendServiceImplTest {
 
     @Autowired
